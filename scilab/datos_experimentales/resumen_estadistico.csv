@@ -1,0 +1,6 @@
+prueba,condicion,n,duracion_s,adc_promedio,adc_desviacion_muestral,adc_min,adc_max,adc_rango,adc_cv_pct,temperatura_promedio_c,temperatura_desviacion_muestral_c,temperatura_min_c,temperatura_max_c,humedad_ambiental_promedio_hr_pct,humedad_ambiental_desviacion_muestral_pct,humedad_ambiental_min_pct,humedad_ambiental_max_pct
+1,aire,10,45,3341.000000,10.749677,3321,3355,34,0.321750,27.830000,0.048305,27.8,27.9,43.610000,0.196921,43.4,44
+2,tierra_seca,10,45,3164.300000,7.958922,3152,3174,22,0.251522,27.960000,0.051640,27.9,28.0,43.380000,0.168655,43.1,43.7
+3,tierra_ligeramente_humeda,12,90,2924.000000,11.329768,2903,2941,38,0.387475,28.166667,0.049237,28.1,28.2,43.258333,0.178164,43.1,43.6
+4,tierra_moderadamente_humeda,12,55,2761.750000,10.393398,2748,2776,28,0.376334,28.325000,0.045227,28.3,28.4,42.758333,0.079296,42.6,42.9
+5,tierra_muy_humeda,12,55,1802.000000,7.507572,1790,1813,23,0.416624,28.600000,0.042640,28.5,28.7,42.758333,0.284312,42.4,43.5
