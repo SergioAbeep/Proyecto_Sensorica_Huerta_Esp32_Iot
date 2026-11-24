@@ -1,0 +1,84 @@
+{
+  "version": 1,
+  "author": "Huerta Urbana Inteligente",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "board-esp32-devkit-c-v4",
+      "id": "esp",
+      "top": 0,
+      "left": 0,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-dht22",
+      "id": "dht22",
+      "top": -100,
+      "left": 190,
+      "attrs": {
+        "temperature": "28.5",
+        "humidity": "46.8"
+      }
+    },
+    {
+      "type": "wokwi-potentiometer",
+      "id": "pot_suelo",
+      "top": 40,
+      "left": -190,
+      "attrs": {
+        "label": "Humedad suelo HW-390"
+      }
+    }
+  ],
+  "connections": [
+    [
+      "esp:TX",
+      "$serialMonitor:RX",
+      "",
+      []
+    ],
+    [
+      "esp:RX",
+      "$serialMonitor:TX",
+      "",
+      []
+    ],
+    [
+      "esp:3V3",
+      "dht22:VCC",
+      "red",
+      []
+    ],
+    [
+      "esp:GND.1",
+      "dht22:GND",
+      "black",
+      []
+    ],
+    [
+      "dht22:SDA",
+      "esp:4",
+      "green",
+      []
+    ],
+    [
+      "esp:3V3",
+      "pot_suelo:VCC",
+      "red",
+      []
+    ],
+    [
+      "esp:GND.1",
+      "pot_suelo:GND",
+      "black",
+      []
+    ],
+    [
+      "pot_suelo:SIG",
+      "esp:34",
+      "orange",
+      []
+    ]
+  ],
+  "dependencies": {}
+}
