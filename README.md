@@ -1,376 +1,148 @@
-
-# Huerta Urbana Inteligente con ESP32 e IoT
-
-## 1. Descripción del proyecto
-
-Este proyecto académico de sensórica consiste en el desarrollo de un sistema de monitoreo para una huerta urbana utilizando un microcontrolador ESP32 y sensores que permiten conocer las condiciones ambientales y del suelo.
-
-El sistema realiza la adquisición de datos de temperatura, humedad ambiental y humedad del suelo. Estas variables pueden visualizarse mediante el monitor serial y, en la versión IoT simulada, mediante un dashboard en Nodrix.
-
-El proyecto también incluye el análisis matemático de los sensores mediante Scilab, la simulación del circuito en Wokwi y la implementación de un servidor Nodrix desplegado en Cloudflare Workers.
-
-## 2. Objetivo general
-
-Desarrollar un sistema de monitoreo para una huerta urbana mediante el uso de sensores, un microcontrolador ESP32 y herramientas IoT que permitan adquirir, analizar y visualizar las variables ambientales y del suelo.
-
-### Objetivos específicos
-
-- Implementar la lectura de temperatura y humedad ambiental mediante el sensor DHT22.
-- Obtener lecturas analógicas de humedad del suelo mediante el sensor capacitivo HW-390.
-- Analizar el comportamiento de los sensores mediante Scilab.
-- Simular el funcionamiento del sistema utilizando Wokwi.
-- Adaptar el repositorio base proporcionado por el docente.
-- Transmitir las variables del sistema hacia Nodrix mediante WebSocket.
-- Visualizar los datos mediante un dashboard en tiempo real.
-
-## 3. Componentes electrónicos
-
-| Componente | Función |
-|---|---|
-| ESP32 DevKit | Procesamiento y transmisión de datos |
-| DHT22 | Medición de temperatura y humedad ambiental |
-| HW-390 V2.0.0 | Sensor capacitivo de humedad del suelo |
-| Protoboard | Montaje del circuito físico |
-| Cables jumper | Conexión de los componentes |
-| Potenciómetro | Representación del HW-390 en Wokwi |
-
-## 4. Herramientas de software
-
-| Herramienta | Aplicación dentro del proyecto |
-|---|---|
-| Arduino IDE | Programación inicial del ESP32 físico |
-| Visual Studio Code | Desarrollo y modificación del firmware |
-| PlatformIO | Gestión de librerías y compilación |
-| Wokwi | Simulación del circuito electrónico |
-| Scilab | Análisis matemático y curvas características |
-| Mosquitto | Pruebas iniciales de comunicación MQTT |
-| Nodrix | Recepción y visualización de datos IoT |
-| Cloudflare Workers | Despliegue del servidor Nodrix |
-| Git y GitHub | Control de versiones y almacenamiento |
-
-## 5. Conexiones del circuito
-
-### Sensor DHT22
-
-| Pin del sensor | ESP32 |
-|---|---|
-| VCC | 3.3 V |
-| DATA | GPIO 4 |
-| GND | GND |
-
-### Sensor capacitivo HW-390
-
-| Pin del sensor | ESP32 |
-|---|---|
-| VCC | 3.3 V |
-| AOUT | GPIO 34 |
-| GND | GND |
-
-El GPIO 34 se utiliza como entrada analógica para obtener las lecturas del sensor de humedad del suelo.
-
-## 6. Variables del sistema
-
-| Variable | Unidad | Rango de referencia |
-|---|---|---|
-| Temperatura ambiental | °C | -40 a 80 |
-| Humedad ambiental | % HR | 0 a 100 |
-| Humedad del suelo | ADC | 0 a 4095 |
-
-El ESP32 utiliza una resolución ADC de 12 bits, lo que permite representar las entradas analógicas mediante 4096 niveles digitales.
-
-La humedad del suelo se presenta inicialmente en unidades ADC, debido a que todavía se requiere una calibración experimental para convertir estas lecturas en porcentajes de humedad confiables.
-
-## 7. Funcionamiento del sistema
-
-El funcionamiento general se divide en las siguientes etapas:
-
-1. Adquisición de datos mediante los sensores.
-2. Procesamiento de las variables en el ESP32.
-3. Visualización de las lecturas en el monitor serial.
-4. Conexión del ESP32 a una red WiFi.
-5. Transmisión de datos mediante WebSocket.
-6. Recepción de las variables en Nodrix.
-7. Visualización mediante indicadores y gráficas.
-
-En la versión IoT simulada, el sistema está configurado para publicar las variables cada 5 segundos.
-
-### Arquitectura del sistema
-
+Huerta Urbana Inteligente con ESP32 e IoT
+Proyecto académico de la asignatura de Sensórica — Ingeniería Electrónica.
+Descripción
+El proyecto consiste en un sistema de monitoreo de temperatura, humedad relativa ambiental y humedad del suelo para una huerta urbana. Utiliza un ESP32, un sensor DHT22 y un sensor capacitivo HW-390 V2.0.0. Las mediciones se muestran en el monitor serial y se transmiten mediante WiFi y WebSocket a Nodrix, desplegado en Cloudflare Workers.
+Se desarrollaron una implementación física inicial, una simulación en Wokwi y una versión IoT probada con el ESP32 físico. Además, se procesaron 56 registros experimentales mediante Scilab para estudiar la respuesta y la dispersión de las mediciones.
+Objetivos
+Adquirir las tres variables del sistema mediante el ESP32.
+Adaptar el repositorio base del docente a la huerta urbana.
+Visualizar las mediciones remotamente mediante Nodrix.
+Configurar la validación de certificados TLS y la sincronización horaria NTP.
+Caracterizar experimentalmente la respuesta del HW-390 y analizar las mediciones en Scilab.
+Componentes y conexiones
+Componente	Función	Conexiones al ESP32
+ESP32 DevKit	Adquisición, procesamiento y comunicación WiFi	Alimentación USB
+DHT22	Temperatura y humedad relativa ambiental	VCC: 3V3; DATA: GPIO4; GND: GND
+HW-390 V2.0.0	Medición capacitiva de humedad del suelo	VCC: 3V3; AOUT: GPIO34; GND: GND
+Protoboard y cables	Interconexión del circuito	Según el montaje
+Potenciómetro virtual	Emulación de la salida del HW-390 en Wokwi	Señal analógica en GPIO34
+El GPIO34 pertenece al ADC1 y permite la adquisición analógica mientras se utiliza WiFi. El ADC se configura con resolución de 12 bits (0–4095 cuentas). El DHT22 entrega mediciones digitales.
+Arquitectura
 ```mermaid
 flowchart TD
     A[DHT22] --> C[ESP32]
-    B[HW-390 o potenciometro simulado] --> C
+    B[HW-390] --> C
     C --> D[Monitor serial]
-    C --> E[WiFi]
-    E --> F[WebSocket]
-    F --> G[Nodrix]
-    G --> H[Dashboard]
-    D -. Analisis de datos .-> I[Scilab]
+    C --> E[WiFi e Internet]
+    E --> F[WebSocket con TLS]
+    F --> G[Nodrix en Cloudflare Workers]
+    G --> H[Dashboard remoto]
+    D --> I[Registro experimental CSV]
+    I --> J[Analisis en Scilab]
 ```
-
-## 8. Pruebas experimentales
-
-Durante la primera etapa se realizaron pruebas con el ESP32 físico y los sensores conectados al circuito.
-
-Se evaluó el comportamiento del sensor capacitivo bajo diferentes condiciones de humedad.
-
-| Condición experimental | Número de lecturas | ADC promedio |
-|---|---:|---:|
-| Sensor expuesto al aire | 3 | 3378.67 |
-| Suelo ligeramente húmedo | 7 | 2991.00 |
-| Suelo con mayor humedad | 16 | 2235.19 |
-
-Los resultados muestran que la lectura ADC disminuye a medida que aumenta la humedad del suelo.
-
-Estas mediciones permiten observar el comportamiento del sensor, pero no representan todavía una calibración absoluta de la humedad.
-
-## 9. Análisis matemático en Scilab
-
-Se desarrolló un programa en Scilab para estudiar el comportamiento de las variables entregadas por los sensores.
-
-El análisis incluye:
-
-- Representación gráfica de las variables.
-- Curvas características.
-- Regresión lineal.
-- Regresión polinómica.
-- Coeficiente de determinación R².
-- Cálculo de errores.
-- Comparación entre modelos matemáticos.
-
-Los modelos desarrollados con datos simulados permiten estudiar el comportamiento esperado de los sensores. Su validación definitiva requiere mediciones experimentales con instrumentos de referencia.
-
-## 10. Adaptación del repositorio base
-
-Para desarrollar la etapa IoT se utilizó como punto de partida el repositorio proporcionado por el docente:
-
-[Repositorio original - sensorica_blueprint](https://github.com/oscar88leonardo/sensorica_blueprint)
-
-El diseño original utilizaba tres potenciómetros para representar variables de temperatura, humedad y luminosidad.
-
-Para adaptarlo al proyecto de huerta urbana se realizaron las siguientes modificaciones:
-
-- Incorporación del sensor DHT22.
-- Eliminación de la variable de luminosidad.
-- Incorporación de la variable de humedad del suelo.
-- Configuración del GPIO 4 para el DHT22.
-- Configuración del GPIO 34 como entrada ADC.
-- Incorporación de las librerías del DHT22.
-- Modificación de la estructura de datos.
-- Adaptación de las funciones de telemetría.
-- Modificación del diagrama de simulación.
-- Configuración de un servidor Nodrix propio.
-
-## 11. Simulación en Wokwi
-
-La simulación está compuesta por:
-
-- Un ESP32 DevKit.
-- Un sensor DHT22.
-- Un potenciómetro que representa la salida analógica del HW-390.
-
-El potenciómetro permite modificar manualmente la lectura ADC para comprobar la respuesta del sistema ante diferentes condiciones simuladas de humedad del suelo.
-
-También es posible modificar la temperatura y la humedad ambiental desde el DHT22 virtual.
-
-La simulación permitió comprobar la adquisición de datos, la conexión WiFi y la transmisión de las variables hacia Nodrix.
-
-## 12. Comunicación IoT con Nodrix
-
-Se desplegó un servidor Nodrix mediante Cloudflare Workers para recibir los datos enviados por el ESP32 simulado.
-
-La comunicación se realiza mediante WebSocket, utilizando un token de conexión asociado al proyecto.
-
-Las variables registradas en Nodrix son:
-
-| Variable | Descripción | Unidad |
-|---|---|---|
-| temperatura | Temperatura ambiental | °C |
-| humedad | Humedad relativa ambiental | % HR |
-| humedad_suelo | Lectura analógica del suelo | ADC |
-
-La conexión y recepción de las tres variables fueron verificadas mediante la simulación en Wokwi.
-
-## 13. Dashboard
-
-Se diseñó un dashboard en Nodrix para visualizar las variables del sistema.
-
-El dashboard contiene:
-
-- Tres indicadores de valores numéricos.
-- Tres indicadores tipo Gauge.
-- Una gráfica de historial.
-
-Los rangos configurados en los indicadores son:
-
-| Indicador | Mínimo | Máximo |
-|---|---:|---:|
-| Humedad ambiental | 0 | 100 |
-| Humedad del suelo | 0 | 4095 |
-| Temperatura ambiental | 0 | 100 |
-
-Durante las pruebas se modificaron manualmente las variables simuladas para comprobar que el dashboard actualizara correctamente sus indicadores.
-
-Los valores extremos utilizados durante estas pruebas no corresponden a condiciones reales de cultivo.
-
-## 14. Estructura del repositorio
-
+El firmware realiza adquisiciones cada 5 segundos. Al iniciar, conecta el ESP32 al WiFi, sincroniza la hora UTC mediante NTP y establece la sesión con Nodrix. En la prueba física se configuró el certificado CA ISRG Root X2 y se verificaron los mensajes de conexión y la recepción de las mediciones en el dashboard.
+Variables del sistema
+Identificador en Nodrix	Variable	Unidad	Rango de referencia
+`temperatura`	Temperatura ambiental	°C	-40 a 80
+`humedad`	Humedad relativa ambiental	% HR	0 a 100
+`humedad_suelo`	Lectura del HW-390	ADC	0 a 4095
+La lectura del suelo permanece en unidades ADC; no se presenta como porcentaje real de humedad sin una calibración de referencia.
+El dashboard contiene tres valores numéricos, tres indicadores tipo Gauge y una sola gráfica histórica con las tres variables, siguiendo la recomendación del docente. Las escalas de las variables son diferentes, lo que debe tenerse en cuenta al interpretar el historial conjunto.
+Herramientas utilizadas
+Arduino IDE (pruebas iniciales), Visual Studio Code, PlatformIO, Wokwi, Nodrix, Cloudflare Workers, Scilab 2026.0.1, Git y GitHub. Mosquitto se utilizó en pruebas iniciales de MQTT; la integración IoT final descrita aquí utiliza WebSocket, no MQTT.
+Estructura del repositorio
 ```text
-Proyecto_Sensorica_Huerta_Esp32_Iot/
-│
-├── firmware/
-│   ├── huerta_esp32/
-│   │   └── Firmware inicial
-│   │
-│   └── huerta_nodrix/
-│       ├── include/
-│       │   ├── config.h
-│       │   └── secrets.h.example
-│       ├── src/
-│       │   ├── main.cpp
-│       │   ├── sensors.cpp
-│       │   ├── sensors.h
-│       │   ├── telemetry.cpp
-│       │   └── telemetry.h
-│       ├── .gitignore
-│       ├── diagram.json
-│       ├── platformio.ini
-│       └── wokwi.toml
-│
-├── scilab/
-└── README.md
+firmware/
+├── huerta_esp32/                  # Firmware inicial
+└── huerta_nodrix/                 # Firmware IoT
+    ├── include/
+    │   ├── config.h
+    │   └── secrets.h.example
+    ├── src/
+    │   ├── main.cpp
+    │   ├── sensors.cpp
+    │   ├── sensors.h
+    │   ├── telemetry.cpp
+    │   └── telemetry.h
+    ├── platformio.ini
+    ├── diagram.json
+    ├── wokwi.toml
+    ├── .gitignore
+    └── LICENSE
+scilab/
+├── datos_experimentales/
+│   ├── mediciones_experimentales.csv
+│   └── resumen_estadistico.csv
+├── graficas/                      # Siete imágenes PNG
+└── analisis_experimental.sce
+README.md
 ```
-
-## 15. Instalación y ejecución
-
-### Requisitos
-
-- Git.
-- Visual Studio Code.
-- Extensión PlatformIO IDE.
-- Extensión Wokwi para Visual Studio Code.
-- Servidor Nodrix disponible.
-- Token de conexión de Nodrix.
-
-### Clonar el repositorio
-
+Se conservan también los archivos anteriores de análisis y modelado de sensores en Scilab.
+Instalación y ejecución del firmware
+1. Clonar y abrir el proyecto
 ```bash
 git clone https://github.com/SergioAbeep/Proyecto_Sensorica_Huerta_Esp32_Iot.git
-```
-
-### Acceder al firmware IoT
-
-```bash
 cd Proyecto_Sensorica_Huerta_Esp32_Iot/firmware/huerta_nodrix
 ```
-
-Abrir esta carpeta como proyecto en Visual Studio Code.
-
-### Configurar las credenciales
-
-Crear una copia del archivo:
-
-`include/secrets.h.example`
-
-Renombrar la copia como:
-
-`include/secrets.h`
-
-Configurar las credenciales correspondientes:
-
+Abrir esta carpeta en Visual Studio Code con la extensión PlatformIO IDE. Para simulación, instalar además la extensión Wokwi.
+2. Configurar las credenciales
+Copiar `include/secrets.h.example` como `include/secrets.h` y establecer los valores propios:
 ```cpp
-#pragma once
-
-#define WIFI_SSID "Wokwi-GUEST"
-#define WIFI_PASS ""
-
-#define NODRIX_HOST "TU_SERVIDOR.workers.dev"
-#define NODRIX_TOKEN "TU_TOKEN_DE_CONEXION"
+#define WIFI_SSID "NOMBRE_DE_LA_RED"
+#define WIFI_PASS "CONTRASENA_DE_LA_RED"
+#define NODRIX_HOST "tu-servidor.workers.dev"
+#define NODRIX_TOKEN "TU_TOKEN"
 ```
-
-El archivo secrets.h contiene información privada y no debe publicarse en GitHub.
-
-### Compilar el firmware
-
-Desde una terminal de PlatformIO ejecutar:
-
+Para Wokwi, utilizar `Wokwi-GUEST` y una contraseña vacía. Para el ESP32 físico, utilizar una red WiFi de 2,4 GHz con acceso a Internet. El dominio debe escribirse sin `https://` ni una diagonal final. Se requiere un servidor Nodrix previamente desplegado y un token válido de su proyecto.
+3. Configurar TLS
+Identificar la autoridad certificadora raíz de la cadena TLS del servidor propio. En el montaje probado se utilizó ISRG Root X2, disponible en el repositorio oficial de certificados de Let's Encrypt. El certificado correcto puede variar según el servidor y sus renovaciones.
+Agregar el certificado PEM completo a `secrets.h` con esta estructura (sustituir el texto de ejemplo):
+```cpp
+static const char nodrix_ca_cert[] = R"PEM(-----BEGIN CERTIFICATE-----
+CONTENIDO_REAL_DEL_CERTIFICADO
+-----END CERTIFICATE-----
+)PEM";
+#define NODRIX_CA_CERT nodrix_ca_cert
+```
+El firmware selecciona `Nodrix.setCACert()` cuando se define `NODRIX_CA_CERT`. La sincronización NTP se realiza antes de iniciar la conexión WebSocket. No utilizar el modo `setInsecure()` para una implementación real con credenciales, pues no verifica la identidad del servidor.
+No publicar `secrets.h`, tokens, contraseñas ni binarios compilados con credenciales.
+4. Compilar, simular o cargar
 ```bash
 pio run
 ```
-
-Una vez finalizada la compilación, abrir diagram.json e iniciar la simulación mediante Wokwi.
-
-Verificar la conexión en el monitor serial y comprobar la recepción de las variables en Nodrix.
-
-## 16. Estado del proyecto
-
-### Actividades realizadas
-
-- [x] Selección de los componentes electrónicos.
-- [x] Montaje inicial del circuito físico.
-- [x] Programación inicial del ESP32.
-- [x] Lectura de los sensores físicos.
-- [x] Obtención de mediciones experimentales.
-- [x] Desarrollo del análisis matemático en Scilab.
-- [x] Configuración inicial de Mosquitto.
-- [x] Adaptación del repositorio del docente.
-- [x] Compilación mediante PlatformIO.
-- [x] Simulación mediante Wokwi.
-- [x] Despliegue de Nodrix en Cloudflare.
-- [x] Conexión mediante WebSocket en simulación.
-- [x] Transmisión de las tres variables simuladas.
-- [x] Creación y prueba del dashboard.
-- [x] Publicación del firmware en GitHub.
-
-### Actividades pendientes
-
-- [ ] Calibración experimental del sensor HW-390.
-- [ ] Validación del DHT22 con instrumentos de referencia.
-- [ ] Implementación del firmware IoT en el ESP32 físico.
-- [ ] Validación de la transmisión de datos físicos a Nodrix.
-- [ ] Configuración de la validación de certificados TLS.
-- [ ] Integración de una pantalla OLED.
-- [ ] Incorporación de evidencias fotográficas.
-- [ ] Finalización del informe de laboratorio.
-
-## 17. Seguridad
-
-Las credenciales WiFi y los tokens de conexión se almacenan localmente en secrets.h.
-
-Este archivo se encuentra excluido mediante .gitignore.
-
-La configuración TLS sin validación de certificados utilizada durante las pruebas corresponde a un entorno de desarrollo y simulación. Para una implementación definitiva se debe habilitar la validación de certificados.
-
-## 18. Evidencias del proyecto
-
-En esta sección se incorporarán las siguientes evidencias:
-
-- Montaje físico del circuito.
-- Lecturas experimentales en Arduino IDE.
-- Curvas características en Scilab.
-- Compilación exitosa en PlatformIO.
-- Diagrama del circuito en Wokwi.
-- Conexión exitosa con Nodrix.
-- Variables registradas en Nodrix.
-- Dashboard final.
-- Repositorio actualizado en GitHub.
-
-## 19. Conclusiones
-
-El desarrollo del proyecto permitió aplicar conocimientos de sensórica, programación de microcontroladores, adquisición de datos, análisis matemático y comunicación IoT.
-
-Mediante las pruebas físicas se comprobó el comportamiento inicial de los sensores, mientras que la simulación permitió validar la transmisión y visualización remota de las variables mediante Nodrix.
-
-Como siguiente etapa se espera integrar el firmware IoT con el circuito físico y completar la calibración de los sensores para obtener mediciones más confiables.
-
-## 20. Autor y créditos
-
-Proyecto académico de Ingeniería Electrónica.
-
-Asignatura: Sensórica.
-
-Desarrollado por: Sergio Andrés Muñoz Mendoza.
-
-Repositorio base: sensorica_blueprint, proporcionado por el docente Oscar Leonardo.
-
-La adaptación del firmware debe conservar los avisos de autoría y las condiciones de licencia del repositorio original.
+Para simular, iniciar Wokwi con `diagram.json` y `wokwi.toml` desde Visual Studio Code. El potenciómetro virtual representa la señal analógica del HW-390.
+Para el montaje físico, conectar el ESP32 por USB y comprobar el puerto con `pio device list`. El archivo `platformio.ini` contiene COM7, que corresponde al computador utilizado en las pruebas; cambiar o eliminar `upload_port` y `monitor_port` si el puerto es distinto.
+```bash
+pio run -t upload
+pio device monitor
+```
+El monitor serial trabaja a 115200 baudios. Comprobar la conexión WiFi, la sincronización NTP, la sesión WebSocket y las mediciones. En Nodrix, verificar la recepción de las variables. Detener la simulación cuando se utilice el dispositivo físico para evitar mezclar ambos orígenes de datos.
+Resultados experimentales
+El 24 de noviembre de 2026 se registraron 56 mediciones seleccionadas en cinco condiciones cualitativas, con un intervalo de adquisición de 5 segundos. Los registros conservan sus tiempos originales, incluidos los intervalos sin muestras disponibles.
+Condición	n	Media ADC	Desviación estándar muestral (ADC)	CV (%)	Temperatura media (°C)	HR media (%)
+Aire	10	3341,00	10,75	0,322	27,83	43,61
+Tierra seca	10	3164,30	7,96	0,252	27,96	43,38
+Tierra ligeramente húmeda	12	2924,00	11,33	0,387	28,17	43,26
+Tierra moderadamente húmeda	12	2761,75	10,39	0,376	28,33	42,76
+Tierra muy húmeda	12	1802,00	7,51	0,417	28,60	42,76
+![Respuesta experimental del HW-390](scilab/graficas/01_respuesta_hw390.png)
+La señal media disminuyó 1539 cuentas ADC (46,06 %) entre aire y tierra muy húmeda, y 1362,30 cuentas (43,05 %) entre tierra seca y muy húmeda. Estos porcentajes corresponden a reducciones de la señal, no a humedad real del suelo. Los coeficientes de variación inferiores a 0,5 % indican baja dispersión a corto plazo en las condiciones ensayadas, pero no prueban exactitud metrológica.
+Análisis en Scilab
+Abrir `scilab/analisis_experimental.sce` en SciNotes y ejecutar con F5, conservando la estructura de carpetas. El programa importa las mediciones, calcula los parámetros estadísticos, compara el resumen CSV y exporta siete imágenes a `scilab/graficas/`. La ejecución fue verificada en Scilab 2026.0.1.
+Datos: Mediciones individuales · Resumen estadístico.
+Gráficas:
+Respuesta del HW-390 con barras de error.
+Serie temporal del suelo.
+Serie temporal de temperatura.
+Serie temporal de humedad ambiental.
+Repetibilidad mediante coeficiente de variación.
+Distribución tridimensional de frecuencias.
+Cambios ADC entre condiciones.
+![Dispersión relativa de las mediciones](scilab/graficas/05_repetibilidad.png)
+El análisis experimental se mantiene separado de los modelos matemáticos simulados desarrollados previamente. Las condiciones del suelo no representan una escala cuantitativa de humedad.
+Estado y limitaciones
+[x] Montaje y adquisición de datos físicos.
+[x] Adaptación del firmware base y simulación en Wokwi.
+[x] Despliegue de Nodrix y dashboard.
+[x] Implementación física de la comunicación IoT con configuración TLS y NTP.
+[x] Caracterización cualitativa del HW-390 mediante cinco condiciones.
+[x] Procesamiento de 56 mediciones y generación de siete gráficas en Scilab.
+[ ] Calibración cuantitativa del HW-390 con humedad conocida.
+[ ] Validación de exactitud del DHT22 con instrumentos de referencia.
+El monitoreo remoto se validó con el montaje físico alimentado por USB. No se realizaron pruebas específicas de autonomía sin computador, estabilidad prolongada ni reconexión ante pérdidas de red. El riego automático, la pantalla OLED y las alertas quedan como posibles ampliaciones.
+Conclusión
+Se consiguió implementar un prototipo funcional capaz de adquirir variables ambientales y del suelo y transmitirlas a un dashboard IoT. Las mediciones experimentales del HW-390 mostraron una disminución progresiva de la señal ADC conforme aumentó la humedad cualitativa del suelo. El análisis en Scilab permitió estudiar la respuesta y la repetibilidad a corto plazo. Para establecer curvas de calibración cuantitativas y determinar la exactitud de los sensores, se requieren mediciones independientes de referencia.
+Créditos y licencia
+Proyecto académico de Sensórica — Ingeniería Electrónica.
+La versión IoT adapta el repositorio base sensorica_blueprint, proporcionado por el docente. Se conserva su licencia GNU GPLv3 en `firmware/huerta_nodrix/LICENSE` y deben mantenerse los avisos de autoría originales.
+Modificaciones de la adaptación, noviembre de 2026: incorporación del DHT22 y del HW-390, cambios de pines y variables, adaptación del diagrama de Wokwi y de la telemetría, configuración de un servidor Nodrix propio, sincronización NTP y configuración de validación TLS para la implementación física.
